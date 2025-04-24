@@ -1,0 +1,27 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "incremental": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+
+    /* Base Options */
+    "baseUrl": "./", // Указывает базовую директорию для разрешения путей
+    "paths": {
+      "@/*": ["src/*"] // Настройка алиаса @
+    },
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* Module Resolution */
+    "moduleResolution": "node", // Указывает, как разрешать модули
+    "target": "ESNext", // Целевая версия ECMAScript
+    "module": "ESNext", // Используемый модуль
+    "types": ["node"] // Добавляет типы для Node.js
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue"],
+  "exclude": ["node_modules"] // Исключает папку node_modules из компиляции
+}

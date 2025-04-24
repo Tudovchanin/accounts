@@ -1,0 +1,15 @@
+@use './reset';
+@use './variables';
+@use './utilities';
+
+@import 'primeicons/primeicons.css';
+
+
+
+body {
+  min-height: 100vh;
+  background-color: var(--light-color);
+  background: var(--light-gradient);
+  font-family: sans-serif;
+}
+
