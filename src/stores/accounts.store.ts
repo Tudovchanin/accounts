@@ -2,21 +2,39 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue';
 import { v4 as uuidv4 } from 'uuid';
 
-export type Record = 'Локальная' | 'LDAP';
+export type TypeRecord = 'Локальная' | 'LDAP';
 export type Label = { text: string };
 export type Account = {
   id: string;
   labels: Label[];
-  type_record: Record;
+  type_record: TypeRecord;
   login: string;
   password: string | null;
 }
 
-export const useAccountsStore = defineStore('accounts-store', () => {
 
+
+
+export const useAccountsStore = defineStore('accounts-store', () => {
+  const STORAGE_KEY = 'user-accounts';
   const accounts = ref<Account[]>([]);
 
-  const addAccount = ()=> {
+
+
+  const loadFromStorage = () => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) accounts.value = JSON.parse(saved);
+    console.log(saved, 'saved');
+    
+  };
+
+  const saveToStorage = () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts.value));
+  };
+
+  
+
+  const addAccount = ():string=> {
 
     const account:Account = {
       id: uuidv4(),
@@ -26,6 +44,8 @@ export const useAccountsStore = defineStore('accounts-store', () => {
       password: null
     }
     accounts.value.push(account);
+
+    return account.id
   }
 
   const deleteAccount = (id:string)=>{
@@ -47,5 +67,5 @@ export const useAccountsStore = defineStore('accounts-store', () => {
 
 
 
-  return { accounts, addAccount, deleteAccount, updateAccount }
+  return { accounts, addAccount, deleteAccount, updateAccount, loadFromStorage, saveToStorage }
 })

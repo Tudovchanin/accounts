@@ -3,11 +3,10 @@ import { ref } from "vue";
 import InputText from "primevue/inputtext";
 import Select from "primevue/select";
 import Password from "primevue/password";
-import type { Record } from "@/stores/accounts.store";
+import type { TypeRecord } from "@/stores/accounts.store";
 
 
 export type ErrorAccount = ({
-  label:boolean,
   login:boolean,
   password:boolean,
 })
@@ -15,11 +14,11 @@ export type ErrorAccount = ({
 type AccountProps = {
   id: string;
   labels: string;
-  type_record: Record;
+  type_record: TypeRecord;
   login: string;
   password: string | null;
   optionsSelect: string[];
-  hidePasswordOnTypeRecord?: Record;
+  hidePasswordOnTypeRecord?: TypeRecord;
   error?: ErrorAccount,
 };
 
@@ -48,12 +47,14 @@ const emitUpdate = ()=> {
   
   emit("blur-account", { id: props.id,...modelAccount.value})
 }
+
+
 </script>
 <template>
   <div class="accounts">
     <div class="accounts__input">
       <InputText
-       
+       :invalid="props.error?.label"
         fluid
         size="small"
         type="text"
@@ -79,14 +80,11 @@ const emitUpdate = ()=> {
       }"
     >
       <InputText
-      class="p-invalid"
+      :invalid="props.error?.login"
         fluid
         size="small"
         type="text"
         placeholder="значение"
-        :inputProps="{
-          autocomplete: 'username',
-        }"
         v-model="modelAccount.login"
         @blur="emitUpdate"
       />
@@ -97,12 +95,9 @@ const emitUpdate = ()=> {
       class="accounts__input"
     >
       <Password
-      class="p-invalid"
+      :invalid="props.error?.password"
         fluid
         size="small"
-        :inputProps="{
-          autocomplete: 'current-password',
-        }"
         toggleMask
         v-model="modelAccount.password"
         @blur="emitUpdate"

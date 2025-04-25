@@ -1,53 +1,82 @@
 <script lang="ts" setup>
-import { ref } from "vue";
-
+import { ref, onBeforeMount } from "vue";
 import { useAccountsStore } from "./stores/accounts.store";
 
-import type { Account, Record, Label } from "./stores/accounts.store";
-import type { AccountBlurPayload } from "@/components/AppAccount.vue";
+import type { Account, TypeRecord, Label } from "./stores/accounts.store";
+import type { AccountBlurPayload, ErrorAccount } from "@/components/AppAccount.vue";
 
 import AppAccount from "./components/AppAccount.vue";
 
+
 const storeAccount = useAccountsStore();
 
+const errors = ref<Record<string, ErrorAccount>>({});
 
-const errorAccount = ref({
-  label:false,
-  login:false,
-  password:false
-})
-const options = ref<Record[]>(["Локальная", "LDAP"]);
+const options = ref<TypeRecord[]>(["Локальная", "LDAP"]);
 
-const parserLabel = (labels: Label[]) => {
+
+
+const addAccount = () => {
+
+  const accountId = storeAccount.addAccount();
+
+  errors.value[accountId] = {
+    login: false,
+    password: false
+  };
+
+  console.log(errors.value, 'errors.value');
+  storeAccount.saveToStorage();
+};
+
+
+const deleteAccount = (accountId: string) => {
+
+  storeAccount.deleteAccount(accountId);
+  storeAccount.saveToStorage();
+
+  delete errors.value[accountId]
+
+};
+
+const updateAccount = (accountUpdate: AccountBlurPayload) => {
+
+  const accountId = accountUpdate.id;
+  const password = accountUpdate.type_record === 'Локальная'
+    ? accountUpdate.password || ''
+    : null;
+  const transformLabels: Label[] =
+    accountUpdate.labels.trim().length > 0
+      ? parseLabelsFromString(accountUpdate.labels)
+      : [];
+
+
+  errors.value[accountId].login = accountUpdate.login.trim().length === 0;
+
+  if (password !== null) {
+    errors.value[accountId].password = password?.trim().length === 0 || password?.trim().length > 100;
+  }
+
+  if (errors.value[accountId].login || errors.value[accountId].password) return;
+
+  const account = { ...accountUpdate, labels: transformLabels, password };
+
+  storeAccount.updateAccount(account);
+  storeAccount.saveToStorage();
+};
+
+
+
+
+
+
+
+function labelsToString(labels: Label[]) {
   const labelsString = labels.map((label: Label) => label.text).join(";");
   return labelsString;
 };
 
-const addAccount = () => {
-  storeAccount.addAccount();
-};
-
-const deleteAccount = (id: string) => {
-  storeAccount.deleteAccount(id);
-};
-
-const updateAccount = (accountUpdate: AccountBlurPayload) => {
-  const password = accountUpdate.type_record === 'Локальная'
-   ? accountUpdate.password
-   : null
-  const transformLabels: Label[] =
-  accountUpdate.labels.trim().length > 0
-      ? transformStringLabel(accountUpdate.labels)
-      : [];
-
-  const account = { ...accountUpdate, labels: transformLabels, password };
-  storeAccount.updateAccount(account);
-  
-
-};
-
-function transformStringLabel(string: string): Label[] {
-  console.log(string.split(";"), "split");
+function parseLabelsFromString(string: string): Label[] {
 
   const arrayLabels = string
     .split(";")
@@ -58,6 +87,28 @@ function transformStringLabel(string: string): Label[] {
 
   return arrayLabels;
 }
+
+function initErrors() {
+  const accounts = [...storeAccount.accounts];
+    for (let index = 0; index < accounts.length; index++) {
+      errors.value[accounts[index].id] = {
+        login: false,
+        password: false
+      }
+
+    }
+}
+
+onBeforeMount(() => {
+
+  storeAccount.loadFromStorage();
+
+  if (storeAccount.accounts.length > 0) {
+   initErrors();
+  }
+
+})
+
 </script>
 
 <template>
@@ -67,20 +118,10 @@ function transformStringLabel(string: string): Label[] {
     </button>
     <div>{{ storeAccount.accounts }}</div>
     <form class="form-account">
-      <AppAccount
-        v-for="account in storeAccount.accounts"
-        :key="account.id"
-        :id="account.id"
-        :labels="parserLabel(account.labels)"
-        :type_record="account.type_record"
-        :login="account.login"
-        :password="account.password"
-        :options-select="options"
-        :hide-password-on-type-record="options[1]"
-        :error="errorAccount"
-        @delete-account="deleteAccount"
-        @blur-account="updateAccount"
-      />
+      <AppAccount v-for="account in storeAccount.accounts" :key="account.id" :id="account.id"
+        :labels="labelsToString(account.labels)" :type_record="account.type_record" :login="account.login"
+        :password="account.password" :options-select="options" :hide-password-on-type-record="options[1]"
+        :error="errors[account.id]" @delete-account="deleteAccount" @blur-account="updateAccount" />
     </form>
   </div>
 </template>
