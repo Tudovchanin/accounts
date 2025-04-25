@@ -13,26 +13,18 @@ export type Account = {
 }
 
 
-
-
 export const useAccountsStore = defineStore('accounts-store', () => {
+
   const STORAGE_KEY = 'user-accounts';
   const accounts = ref<Account[]>([]);
-
-
 
   const loadFromStorage = () => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) accounts.value = JSON.parse(saved);
-    console.log(saved, 'saved');
-    
   };
-
   const saveToStorage = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts.value));
-  };
-
-  
+  };  
 
   const addAccount = ():string=> {
 
@@ -47,13 +39,11 @@ export const useAccountsStore = defineStore('accounts-store', () => {
 
     return account.id
   }
-
   const deleteAccount = (id:string)=>{
     accounts.value = accounts.value.filter((account)=>  account.id !== id);
     console.log(accounts.value, 'delete store');
     
   }
-
   const updateAccount = (accountUpdate:Account)=> {
    accounts.value =  accounts.value.map((account)=> {
       if(account.id === accountUpdate.id){
@@ -63,9 +53,6 @@ export const useAccountsStore = defineStore('accounts-store', () => {
     })
     
   }
-
-
-
 
   return { accounts, addAccount, deleteAccount, updateAccount, loadFromStorage, saveToStorage }
 })

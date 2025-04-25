@@ -116,17 +116,18 @@ const emitUpdate = ()=> {
 <style lang="scss" scoped>
 .accounts {
   display: flex;
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
   background-color: whitesmoke;
   padding: 20px;
+  width: 100%;
 
   &__input {
-    width: 100%;
-    max-width: 306px;
+   
+    width: 300px;
 
     &--wide {
-      max-width: 100%;
-      background-color: red;
+      width: 610px;;
     }
   }
 
@@ -136,7 +137,6 @@ const emitUpdate = ()=> {
   }
 
   &__field-delete-button {
-    // flex-shrink: 0;
     width: 50px;
   }
 }

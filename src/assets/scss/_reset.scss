@@ -4,17 +4,7 @@
   box-sizing: border-box;
 }
 
-html {
-  overflow-x: hidden;
-}
 
-
-a {
-  display: block;
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-}
 
 button {
   border: none;
@@ -22,9 +12,6 @@ button {
   cursor: pointer;
 }
 
-cite {
-  font-style: normal;
-}
 
 h1,
 h2,
@@ -34,15 +21,6 @@ h5,
 h6 {
   font-size: inherit;
   font-weight: normal;
-}
-
-ul,
-li {
-  list-style-type: none;
-}
-
-address {
-  font-style: normal;
 }
 
 img {
