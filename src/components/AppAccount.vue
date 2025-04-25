@@ -54,7 +54,6 @@ const emitUpdate = ()=> {
   <div class="accounts">
     <div class="accounts__input">
       <InputText
-       :invalid="props.error?.label"
         fluid
         size="small"
         type="text"
