@@ -1,64 +1,122 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { ref } from "vue";
 import InputText from "primevue/inputtext";
 import Select from "primevue/select";
 import Password from "primevue/password";
-import type { TypeRecord, } from "@/stores/accounts.store";
+import type { Record } from "@/stores/accounts.store";
+
+
+export type ErrorAccount = ({
+  label:boolean,
+  login:boolean,
+  password:boolean,
+})
 
 type AccountProps = {
   id: string;
   labels: string;
-  type_record: TypeRecord;
+  type_record: Record;
   login: string;
   password: string | null;
   optionsSelect: string[];
-  hidePasswordOnTypeRecord?: TypeRecord;
+  hidePasswordOnTypeRecord?: Record;
+  error?: ErrorAccount,
 };
 
-const props = defineProps<AccountProps>()
+export type AccountBlurPayload = Pick<
+  AccountProps, 
+  'id' | 'labels' | 'type_record' | 'login' | 'password'
+>;
+
+
+
+const props = defineProps<AccountProps>();
+
 const modelAccount = ref({
-  label: props.labels,
-  typeRecord: props.type_record,
+  labels: props.labels,
+  type_record: props.type_record,
   login: props.login,
   password: props.password,
-})
-const emit = defineEmits(['delete-account']);
+});
+const emit = defineEmits(["delete-account","blur-account"]);
 
 const emitDeleteAccount = () => {
-  emit("delete-account", props.id)
-}
+  emit("delete-account", props.id);
+};
 
+const emitUpdate = ()=> {
+  
+  emit("blur-account", { id: props.id,...modelAccount.value})
+}
 </script>
 <template>
-
   <div class="accounts">
     <div class="accounts__input">
-      <InputText fluid size="small" type="text" placeholder="значение" v-model="modelAccount.label" />
+      <InputText
+       
+        fluid
+        size="small"
+        type="text"
+        placeholder="значение"
+        v-model="modelAccount.labels"
+        @blur="emitUpdate"
+      />
     </div>
     <div class="accounts__select">
-      <Select fluid size="small" :options="optionsSelect" v-model="modelAccount.typeRecord" />
+      <Select
+        fluid
+        size="small"
+        :options="optionsSelect"
+        v-model="modelAccount.type_record"
+        @change="emitUpdate"
+      />
     </div>
-    <div class="accounts__input" :class="{
-      'accounts__input--wide': modelAccount.typeRecord === props.hidePasswordOnTypeRecord,
-    }">
-      <InputText fluid size="small" type="text" placeholder="значение" :inputProps="{
-        autocomplete: 'username',
-      }" v-model="modelAccount.login" />
+    <div
+      class="accounts__input"
+      :class="{
+        'accounts__input--wide':
+          modelAccount.type_record === props.hidePasswordOnTypeRecord,
+      }"
+    >
+      <InputText
+      class="p-invalid"
+        fluid
+        size="small"
+        type="text"
+        placeholder="значение"
+        :inputProps="{
+          autocomplete: 'username',
+        }"
+        v-model="modelAccount.login"
+        @blur="emitUpdate"
+      />
     </div>
 
-    <div v-if="hidePasswordOnTypeRecord !== modelAccount.typeRecord" class="accounts__input">
-      <Password fluid size="small" class="container" :inputProps="{
-        autocomplete: 'current-password',
-      }" toggleMask v-model="modelAccount.password" />
+    <div
+      v-if="hidePasswordOnTypeRecord !== modelAccount.type_record"
+      class="accounts__input"
+    >
+      <Password
+      class="p-invalid"
+        fluid
+        size="small"
+        :inputProps="{
+          autocomplete: 'current-password',
+        }"
+        toggleMask
+        v-model="modelAccount.password"
+        @blur="emitUpdate"
+      />
     </div>
-    <button @click="emitDeleteAccount" type="button" class="accounts__field-delete-button">
+    <button
+      @click="emitDeleteAccount"
+      type="button"
+      class="accounts__field-delete-button"
+    >
       <i class="pi pi-trash"></i>
     </button>
   </div>
-
-
 </template>
-
 
 <style lang="scss" scoped>
 .accounts {
@@ -66,7 +124,6 @@ const emitDeleteAccount = () => {
   gap: 20px;
   background-color: whitesmoke;
   padding: 20px;
-
 
   &__input {
     width: 100%;
